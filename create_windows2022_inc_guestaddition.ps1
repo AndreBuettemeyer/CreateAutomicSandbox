@@ -50,7 +50,7 @@ else
 		VBoxManage guestcontrol ad run --username $windows_adminname --password $windows_password --wait-stdout --wait-stderr --exe C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe 'Get-ScheduledTask -TaskName ServerManager | Disable-ScheduledTask -Verbose'
 		VBoxManage guestcontrol ad run --username $windows_adminname --password $windows_password --wait-stdout --wait-stderr --exe C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe 'New-Item -Path \"registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\" -Name Reliability -Force'
 		VBoxManage guestcontrol ad run --username $windows_adminname --password $windows_password --wait-stdout --wait-stderr --exe C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe 'Set-ItemProperty -Path \"registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Reliability\" -Name ShutdownReasonOn -Value 0 -Force'
-		./windows_shutdown.ps1
+		./windows_reboot.ps1
 	}
 
 
