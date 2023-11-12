@@ -10,6 +10,7 @@
 #Variable $windows_adminname must be defined.
 #Variable $domain_name with the Domain Name must be defined.
 
+write-host 'Create Windows 2022 inclusive VirtualBox Guest Additions'
 $vmliste = VBOXManage list vms --long
 $vmvorhanden = $vmliste.contains('Name:                        ' + $vm_guestname)
 if ( $vmvorhanden -eq 'True')
@@ -18,7 +19,7 @@ if ( $vmvorhanden -eq 'True')
 	}
 else
 	{
-		write-host $vm_guestname' does not exists. Start installation.'
+		write-host $vm_guestname' does not exists. Start guest preparation.'
 		VBoxManage createvm --name $vm_guestname --ostype Windows2022_64 --register --basefolder $vm_basefolder
 		VBoxManage modifyvm $vm_guestname --clipboard-mode bidirectional 
 		VBoxManage modifyvm $vm_guestname --memory 6144 --boot1 dvd --boot2 disk --boot3 none --boot4 none
@@ -33,6 +34,7 @@ else
 		Copy-Item "C:\Program Files\Oracle\VirtualBox\UnattendedTemplates\win_nt6_unattended.xml" -Destination $vm_basefolder'\'$vm_guestname'\windows2022-trial.xml'
 		(Get-Content -path $vm_basefolder'\'$vm_guestname'\windows2022-trial.xml' -Raw).replace('<ProductKey>','<!-- <ProductKey>') | Set-Content -Path $vm_basefolder'\'$vm_guestname'\windows2022-trial.xml'
 		(Get-Content -path $vm_basefolder'\'$vm_guestname'\windows2022-trial.xml' -Raw).replace('</ProductKey>','</ProductKey> -->') | Set-Content -Path $vm_basefolder'\'$vm_guestname'\windows2022-trial.xml'
+		write-host $vm_guestname' Start guest installation.'
 		VBoxManage unattended install $vm_guestname --iso $windows_isofile --user=$windows_user --password=$windows_password --full-user-name=$windows_username --install-additions --language=de-DE --locale=de_DE --country=DE --time-zone=CET --hostname $vm_guestname'.'$domain_name --image-index 2 --script-template $vm_basefolder'\'$vm_guestname'\windows2022-trial.xml'
 		vboxmanage startvm $vm_guestname
 		$installdone = 'False'
@@ -46,6 +48,7 @@ else
 		VBoxManage setextradata $vm_guestname GUI/Input/MouseIntegration true
 		./vm_shutdown.ps1
 		./windows_start.ps1
+		write-host $vm_guestname' Start postinstallation settings.'
 		VBoxManage guestcontrol ad run --username $windows_user --password $windows_password --wait-stdout --wait-stderr --exe C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe 'Set-WinUserLanguageList de-DE -Force'
 		VBoxManage guestcontrol ad run --username $windows_adminname --password $windows_password --wait-stdout --wait-stderr --exe C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe 'Get-ScheduledTask -TaskName ServerManager | Disable-ScheduledTask -Verbose'
 		VBoxManage guestcontrol ad run --username $windows_adminname --password $windows_password --wait-stdout --wait-stderr --exe C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe 'New-Item -Path \"registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\" -Name Reliability -Force'
