@@ -3,7 +3,7 @@
 #Virtualbox Guest Additions must be installed.
 #Variable $vm_guestname with the virtuellen maschine name must be defined.
 
-#Start
+write-host 'Power on the VM'$vm_guestname
 vboxmanage startvm $vm_guestname
 $startupdone = 'False'
 while ( $startupdone -ne 'True')
